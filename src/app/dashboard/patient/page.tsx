@@ -18,7 +18,7 @@ export default async function PatientDashboard() {
     const consultations = await prisma.consultation.findMany({
         where: { patientId: session.user.id },
         orderBy: { createdAt: "desc" },
-        include: { doctor: true },
+        include: { doctor: { include: { doctorProfile: true } } },
     })
 
     const assignedDoctor = consultations.find((c) => c.doctor)?.doctor
@@ -65,7 +65,9 @@ export default async function PatientDashboard() {
                             {consultations.map((consultation) => (
                                 <div key={consultation.id} className="rounded-md border bg-gray-50 dark:bg-gray-900 p-3">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-semibold capitalize">{consultation.status}</span>
+                                        <span className="text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-200 px-2 py-1 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                                            {consultation.status}
+                                        </span>
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
                                             {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(consultation.createdAt)}
                                         </span>
@@ -80,8 +82,13 @@ export default async function PatientDashboard() {
                                         <p className="text-xs text-gray-500 dark:text-gray-400">Duration: {consultation.duration}</p>
                                     )}
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                        Doctor: {consultation.doctor?.email ?? "Not assigned"}
+                                    Doctor: {consultation.doctor?.doctorProfile?.specialty ? `${consultation.doctor.doctorProfile.specialty} — ` : ""}{consultation.doctor?.email ?? "Not assigned"}
                                     </p>
+                                    {consultation.notes && (
+                                        <p className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-100">
+                                            Doctor notes: {consultation.notes}
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </div>
