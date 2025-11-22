@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { cancelConsultation, requestConsultation } from "@/app/actions"
 import { prisma } from "@/lib/prisma"
+import { SPECIALTIES } from "@/lib/specialties"
 
 export default async function PatientDashboard() {
     const session = await auth()
@@ -43,11 +44,18 @@ export default async function PatientDashboard() {
                         placeholder="Duration (e.g. 3 days)"
                         className="h-10 w-full md:w-40 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
-                    <input
+                    <select
                         name="requestedSpecialty"
-                        placeholder="Requested specialty (optional)"
                         className="h-10 w-full md:w-56 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    />
+                        defaultValue=""
+                    >
+                        <option value="">Any specialty</option>
+                        {SPECIALTIES.map((item) => (
+                            <option key={item} value={item}>
+                                {item}
+                            </option>
+                        ))}
+                    </select>
                     <textarea
                         name="images"
                         rows={2}

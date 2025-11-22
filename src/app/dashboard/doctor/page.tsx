@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { acceptConsultation, completeConsultation, releaseConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
+import { SPECIALTIES } from "@/lib/specialties"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -33,7 +34,7 @@ export default async function DoctorDashboard() {
         ? incoming.filter((c) => {
               if (!doctorProfile?.specialty) return true
               if (!c.requestedSpecialty) return true
-              return c.requestedSpecialty.toLowerCase().includes(doctorProfile.specialty.toLowerCase())
+              return c.requestedSpecialty.toLowerCase() === doctorProfile.specialty.toLowerCase()
           })
         : []
 
@@ -98,12 +99,19 @@ export default async function DoctorDashboard() {
                     <form action={upsertDoctorProfile} className="mt-4 space-y-3">
                         <div className="space-y-1">
                             <label className="text-sm font-medium" htmlFor="specialty">Specialty</label>
-                            <input
+                            <select
                                 id="specialty"
                                 name="specialty"
                                 defaultValue={doctorProfile?.specialty ?? ""}
                                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            />
+                            >
+                                <option value="">Select</option>
+                                {SPECIALTIES.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm font-medium" htmlFor="bio">Bio</label>

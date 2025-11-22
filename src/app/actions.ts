@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { SPECIALTIES } from "@/lib/specialties"
 
 async function getSessionOrThrow() {
     const session = await auth()
@@ -18,7 +19,8 @@ export async function requestConsultation(formData?: FormData) {
     const description = formData?.get("description")?.toString().trim() || "New consultation request"
     const symptoms = formData?.get("symptoms")?.toString().trim() || null
     const duration = formData?.get("duration")?.toString().trim() || null
-    const requestedSpecialty = formData?.get("requestedSpecialty")?.toString().trim() || null
+    const requestedSpecialtyRaw = formData?.get("requestedSpecialty")?.toString().trim() || null
+    const requestedSpecialty = requestedSpecialtyRaw && SPECIALTIES.includes(requestedSpecialtyRaw) ? requestedSpecialtyRaw : null
     const imagesInput = formData?.get("images")?.toString().trim() || ""
     const imageList =
         imagesInput
@@ -124,7 +126,8 @@ export async function upsertDoctorProfile(formData: FormData) {
     if (session.user.role !== "doctor") throw new Error("Only doctors can update doctor profile")
 
     const bio = formData.get("bio")?.toString().trim() || null
-    const specialty = formData.get("specialty")?.toString().trim() || null
+    const specialtyRaw = formData.get("specialty")?.toString().trim() || null
+    const specialty = specialtyRaw && SPECIALTIES.includes(specialtyRaw) ? specialtyRaw : null
 
     await prisma.doctorProfile.upsert({
         where: { userId: session.user.id },
