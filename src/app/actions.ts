@@ -101,3 +101,24 @@ export async function upsertDoctorProfile(formData: FormData) {
     revalidatePath("/dashboard/doctor")
     revalidatePath("/auth/doctor/signup")
 }
+
+export async function updateConsultationNotes(formData: FormData) {
+    const session = await getSessionOrThrow()
+    if (session.user.role !== "doctor") throw new Error("Only doctors can add notes")
+
+    const id = formData.get("consultationId")?.toString()
+    const notes = formData.get("notes")?.toString().trim() || null
+    if (!id) throw new Error("Missing consultationId")
+
+    const consultation = await prisma.consultation.findUnique({ where: { id } })
+    if (!consultation) throw new Error("Consultation not found")
+    if (consultation.doctorId !== session.user.id) throw new Error("You are not assigned to this consultation")
+
+    await prisma.consultation.update({
+        where: { id },
+        data: { notes },
+    })
+
+    revalidatePath("/dashboard/doctor")
+    revalidatePath("/dashboard/patient")
+}

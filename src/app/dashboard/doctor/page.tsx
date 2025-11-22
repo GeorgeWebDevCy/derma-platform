@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { acceptConsultation, completeConsultation, upsertDoctorProfile } from "@/app/actions"
+import { acceptConsultation, completeConsultation, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -90,10 +90,24 @@ export default async function DoctorDashboard() {
                                     {consultation.notes && (
                                         <p className="text-xs text-gray-500 dark:text-gray-400">Notes: {consultation.notes}</p>
                                     )}
+                                    <form action={updateConsultationNotes} className="mt-3 space-y-2">
+                                        <input type="hidden" name="consultationId" value={consultation.id} />
+                                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Notes</label>
+                                        <textarea
+                                            name="notes"
+                                            defaultValue={consultation.notes ?? ""}
+                                            rows={2}
+                                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                            placeholder="Add assessment / plan"
+                                        />
+                                        <Button type="submit" size="sm" variant="outline" className="w-full">
+                                            Save notes
+                                        </Button>
+                                    </form>
                                     {consultation.status !== "completed" && (
                                         <form action={completeConsultation} className="mt-2">
                                             <input type="hidden" name="consultationId" value={consultation.id} />
-                                            <Button size="sm" variant="outline" className="w-full">
+                                            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
                                                 Mark Completed
                                             </Button>
                                         </form>
