@@ -82,3 +82,14 @@ The app uses **Magic Links** for authentication.
     -   Billing/payments (Stripe) and doctor availability toggles
     -   File storage for images (S3/Cloudflare R2) and CDN delivery
     -   Role-based `/dashboard` landing redirect and consultation API routes
+
+## Implemented Features
+
+-   Magic-link auth via Auth.js/Resend (`/auth/login`)
+-   Multilingual (EN/ES) language switcher persisted in cookie; landing, login, and dashboards translated
+-   Landing page with highlights, steps, outcomes, CTA, and specialty-aware messaging
+-   Patient dashboard: create consultations with description, symptoms, duration, optional image URLs, requested specialty select; view status, doctor assignment/availability, doctor notes, and images; cancel pending
+-   Doctor dashboard: availability toggle (requires specialty), pending queue filtered by specialty and online status, accept, release to queue, complete, add notes; hides cancelled from “My Consultations”
+-   Doctor profile onboarding/editing with specialty dropdown and bio persistence
+-   Consultation API with auth/role gating; server actions for request/accept/complete/release/cancel/notes/availability/profile/language
+-   Prisma schema: consultations include symptoms, duration, images, notes, requestedSpecialty; doctor profiles include isAvailable, specialty
