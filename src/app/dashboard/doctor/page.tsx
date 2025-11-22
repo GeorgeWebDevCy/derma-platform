@@ -29,7 +29,13 @@ export default async function DoctorDashboard() {
         prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
     ])
 
-    const incomingVisible = doctorProfile?.isAvailable ? incoming : []
+    const incomingVisible = doctorProfile?.isAvailable
+        ? incoming.filter((c) => {
+              if (!doctorProfile?.specialty) return true
+              if (!c.requestedSpecialty) return true
+              return c.requestedSpecialty.toLowerCase().includes(doctorProfile.specialty.toLowerCase())
+          })
+        : []
 
     return (
         <div className="space-y-6">
@@ -126,6 +132,9 @@ function ConsultationCardPending({ consultation, isAvailable }: { consultation: 
             <p className="text-sm font-medium">
                 {consultation.patient?.email ?? "Patient"} — {consultation.description || "No description"}
             </p>
+            {consultation.requestedSpecialty && (
+                <p className="text-xs text-gray-500">Requested: {consultation.requestedSpecialty}</p>
+            )}
             <p className="text-xs text-gray-500">
                 Requested {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(consultation.createdAt)}
             </p>

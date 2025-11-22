@@ -43,6 +43,11 @@ export default async function PatientDashboard() {
                         placeholder="Duration (e.g. 3 days)"
                         className="h-10 w-full md:w-40 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
+                    <input
+                        name="requestedSpecialty"
+                        placeholder="Requested specialty (optional)"
+                        className="h-10 w-full md:w-56 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
                     <textarea
                         name="images"
                         rows={2}
@@ -110,6 +115,11 @@ export default async function PatientDashboard() {
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                     Doctor: {consultation.doctor?.doctorProfile?.specialty ? `${consultation.doctor.doctorProfile.specialty} — ` : ""}{consultation.doctor?.email ?? "Not assigned"}
                                     </p>
+                                    {consultation.requestedSpecialty && (
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            Requested specialty: {consultation.requestedSpecialty}
+                                        </p>
+                                    )}
                                     {consultation.notes && (
                                         <p className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-100">
                                             Doctor notes: {consultation.notes}

@@ -98,6 +98,7 @@ model Consultation {
   description String? @db.Text
   symptoms    String? @db.Text
   duration    String?
+  requestedSpecialty String?
   notes       String? @db.Text // doctor notes
   images      String? @db.Text // JSON array of URLs
   

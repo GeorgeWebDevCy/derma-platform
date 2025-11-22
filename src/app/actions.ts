@@ -18,6 +18,7 @@ export async function requestConsultation(formData?: FormData) {
     const description = formData?.get("description")?.toString().trim() || "New consultation request"
     const symptoms = formData?.get("symptoms")?.toString().trim() || null
     const duration = formData?.get("duration")?.toString().trim() || null
+    const requestedSpecialty = formData?.get("requestedSpecialty")?.toString().trim() || null
     const imagesInput = formData?.get("images")?.toString().trim() || ""
     const imageList =
         imagesInput
@@ -46,6 +47,7 @@ export async function requestConsultation(formData?: FormData) {
             description,
             symptoms,
             duration,
+            requestedSpecialty,
             images: imageList.length ? JSON.stringify(imageList) : null,
         },
     })
