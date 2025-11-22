@@ -27,7 +27,7 @@ export default async function PatientDashboard() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Patient Dashboard</h1>
-                <form action={requestConsultation} className="flex flex-col gap-2 md:flex-row md:items-center">
+                <form action={requestConsultation} className="flex flex-col gap-2 md:flex-row md:items-center md:flex-wrap">
                     <input
                         name="description"
                         placeholder="Brief summary"
@@ -42,6 +42,12 @@ export default async function PatientDashboard() {
                         name="duration"
                         placeholder="Duration (e.g. 3 days)"
                         className="h-10 w-full md:w-40 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <textarea
+                        name="images"
+                        rows={2}
+                        placeholder="Image URLs (one per line)"
+                        className="w-full md:w-[22rem] rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <Button className="bg-emerald-600 hover:bg-emerald-700 md:self-stretch">Request Consultation</Button>
                 </form>
@@ -62,7 +68,9 @@ export default async function PatientDashboard() {
                         <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">No consultations yet.</p>
                     ) : (
                         <div className="mt-4 space-y-3">
-                            {consultations.map((consultation) => (
+                            {consultations.map((consultation) => {
+                                const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
+                                return (
                                 <div key={consultation.id} className="rounded-md border bg-gray-50 dark:bg-gray-900 p-3">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-200 px-2 py-1 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
@@ -89,8 +97,29 @@ export default async function PatientDashboard() {
                                             Doctor notes: {consultation.notes}
                                         </p>
                                     )}
+                                    {images.length > 0 && (
+                                        <div className="mt-2 grid grid-cols-2 gap-2">
+                                            {images.map((url) => (
+                                                <a
+                                                    key={url}
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="block overflow-hidden rounded-md border"
+                                                >
+                                                    <div className="relative h-24 w-full">
+                                                        {/* Use plain div as placeholder; replace with next/image when URLs are trusted and allowlist is set. */}
+                                                        <span className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">
+                                                            View image
+                                                        </span>
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>

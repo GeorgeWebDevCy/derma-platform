@@ -47,20 +47,7 @@ export default async function DoctorDashboard() {
                     ) : (
                         <div className="mt-4 space-y-4">
                             {incoming.map((consultation) => (
-                                <div key={consultation.id} className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900">
-                                    <p className="text-sm font-medium">
-                                        {consultation.patient?.email ?? "Patient"} — {consultation.description || "No description"}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Requested {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(consultation.createdAt)}
-                                    </p>
-                                    <form action={acceptConsultation} className="mt-2">
-                                        <input type="hidden" name="consultationId" value={consultation.id} />
-                                        <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
-                                            Accept Request
-                                        </Button>
-                                    </form>
-                                </div>
+                                <ConsultationCardPending key={consultation.id} consultation={consultation} />
                             ))}
                         </div>
                     )}
@@ -73,46 +60,7 @@ export default async function DoctorDashboard() {
                     ) : (
                         <div className="mt-4 space-y-4">
                             {myConsultations.map((consultation) => (
-                                <div key={consultation.id} className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-sm font-semibold">{consultation.patient?.email ?? "Patient"}</p>
-                                        <span className="text-xs capitalize text-gray-500">{consultation.status}</span>
-                                    </div>
-                                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                        {consultation.description || "No description"}
-                                    </p>
-                                    {consultation.symptoms && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Symptoms: {consultation.symptoms}</p>
-                                    )}
-                                    {consultation.duration && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Duration: {consultation.duration}</p>
-                                    )}
-                                    {consultation.notes && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Notes: {consultation.notes}</p>
-                                    )}
-                                    <form action={updateConsultationNotes} className="mt-3 space-y-2">
-                                        <input type="hidden" name="consultationId" value={consultation.id} />
-                                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Notes</label>
-                                        <textarea
-                                            name="notes"
-                                            defaultValue={consultation.notes ?? ""}
-                                            rows={2}
-                                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                            placeholder="Add assessment / plan"
-                                        />
-                                        <Button type="submit" size="sm" variant="outline" className="w-full">
-                                            Save notes
-                                        </Button>
-                                    </form>
-                                    {consultation.status !== "completed" && (
-                                        <form action={completeConsultation} className="mt-2">
-                                            <input type="hidden" name="consultationId" value={consultation.id} />
-                                            <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
-                                                Mark Completed
-                                            </Button>
-                                        </form>
-                                    )}
-                                </div>
+                                <ConsultationCardAssigned key={consultation.id} consultation={consultation} />
                             ))}
                         </div>
                     )}
@@ -148,6 +96,104 @@ export default async function DoctorDashboard() {
                     </form>
                 </div>
             </div>
+        </div>
+    )
+}
+
+function ConsultationCardPending({ consultation }: { consultation: any }) {
+    const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
+    return (
+        <div className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900 space-y-2">
+            <p className="text-sm font-medium">
+                {consultation.patient?.email ?? "Patient"} — {consultation.description || "No description"}
+            </p>
+            <p className="text-xs text-gray-500">
+                Requested {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(consultation.createdAt)}
+            </p>
+            {consultation.symptoms && (
+                <p className="text-xs text-gray-500">Symptoms: {consultation.symptoms}</p>
+            )}
+            {consultation.duration && (
+                <p className="text-xs text-gray-500">Duration: {consultation.duration}</p>
+            )}
+            {images.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                    {images.map((url) => (
+                        <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-md border">
+                            <div className="relative h-20 w-full">
+                                <span className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">
+                                    View image
+                                </span>
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            )}
+            <form action={acceptConsultation} className="pt-1">
+                <input type="hidden" name="consultationId" value={consultation.id} />
+                <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    Accept Request
+                </Button>
+            </form>
+        </div>
+    )
+}
+
+function ConsultationCardAssigned({ consultation }: { consultation: any }) {
+    const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
+    return (
+        <div className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4">
+            <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">{consultation.patient?.email ?? "Patient"}</p>
+                <span className="text-xs capitalize text-gray-500">{consultation.status}</span>
+            </div>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                {consultation.description || "No description"}
+            </p>
+            {consultation.symptoms && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Symptoms: {consultation.symptoms}</p>
+            )}
+            {consultation.duration && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">Duration: {consultation.duration}</p>
+            )}
+            {images.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                    {images.map((url) => (
+                        <a key={url} href={url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-md border">
+                            <div className="relative h-20 w-full">
+                                <span className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">
+                                    View image
+                                </span>
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            )}
+            {consultation.notes && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Notes: {consultation.notes}</p>
+            )}
+            <form action={updateConsultationNotes} className="mt-3 space-y-2">
+                <input type="hidden" name="consultationId" value={consultation.id} />
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Notes</label>
+                <textarea
+                    name="notes"
+                    defaultValue={consultation.notes ?? ""}
+                    rows={2}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    placeholder="Add assessment / plan"
+                />
+                <Button type="submit" size="sm" variant="outline" className="w-full">
+                    Save notes
+                </Button>
+            </form>
+            {consultation.status !== "completed" && (
+                <form action={completeConsultation} className="mt-2">
+                    <input type="hidden" name="consultationId" value={consultation.id} />
+                    <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                        Mark Completed
+                    </Button>
+                </form>
+            )}
         </div>
     )
 }

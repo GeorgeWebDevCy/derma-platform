@@ -40,6 +40,9 @@ export async function POST(request: Request) {
         : "New consultation request"
     const symptoms = typeof body.symptoms === "string" && body.symptoms.trim().length > 0 ? body.symptoms.trim() : null
     const duration = typeof body.duration === "string" && body.duration.trim().length > 0 ? body.duration.trim() : null
+    const images = Array.isArray(body.images)
+        ? body.images.filter((v: unknown) => typeof v === "string" && v.trim().length > 0).map((v: string) => v.trim())
+        : []
 
     await prisma.consultation.create({
         data: {
@@ -48,6 +51,7 @@ export async function POST(request: Request) {
             description,
             symptoms,
             duration,
+            images: images.length ? JSON.stringify(images) : null,
         },
     })
 
