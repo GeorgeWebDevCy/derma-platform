@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { acceptConsultation, completeConsultation, releaseConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
 import { SPECIALTIES, getDictionary, getLanguageFromCookie } from "@/lib/i18n"
+import { DonutChart, Legend } from "@/components/charts"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -33,6 +34,19 @@ export default async function DoctorDashboard() {
     ])
 
     const missingSpecialty = !doctorProfile?.specialty
+    const statusCounts = myConsultations.reduce(
+        (acc, c) => {
+            acc[c.status] = (acc[c.status] || 0) + 1
+            return acc
+        },
+        {} as Record<string, number>
+    )
+    const donutSegments = [
+        { label: t.doctor.noPending, value: incomingVisible.length, color: "#fbbf24" },
+        { label: "Assigned", value: statusCounts["assigned"] || 0, color: "#06b6d4" },
+        { label: "Completed", value: statusCounts["completed"] || 0, color: "#10b981" },
+        { label: "Cancelled", value: statusCounts["cancelled"] || 0, color: "#f87171" },
+    ]
     const filterDescription = doctorProfile?.specialty
         ? t.doctor.filterSpecific(doctorProfile.specialty)
         : t.doctor.filterAll
@@ -103,6 +117,13 @@ export default async function DoctorDashboard() {
                         <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{t.doctor.noAssigned}</p>
                     ) : (
                         <div className="mt-4 space-y-4">
+                            <div className="rounded-md border border-white/10 bg-white/5 p-4">
+                                <h4 className="text-sm font-semibold text-white mb-3">Overview</h4>
+                                <div className="flex items-center gap-4">
+                                    <DonutChart segments={donutSegments} size={140} strokeWidth={18} />
+                                    <Legend segments={donutSegments} />
+                                </div>
+                            </div>
                             {myConsultations.map((consultation) => (
                                 <ConsultationCardAssigned key={consultation.id} consultation={consultation} labels={t.doctor} />
                             ))}

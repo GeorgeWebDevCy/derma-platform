@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { cancelConsultation, requestConsultation } from "@/app/actions"
 import { prisma } from "@/lib/prisma"
 import { getDictionary, getLanguageFromCookie, SPECIALTIES } from "@/lib/i18n"
+import { DonutChart, Legend } from "@/components/charts"
 
 export default async function PatientDashboard() {
     const session = await auth()
@@ -25,6 +26,19 @@ export default async function PatientDashboard() {
     })
 
     const assignedDoctor = consultations.find((c) => c.doctor)?.doctor
+    const statusCounts = consultations.reduce(
+        (acc, c) => {
+            acc[c.status] = (acc[c.status] || 0) + 1
+            return acc
+        },
+        {} as Record<string, number>
+    )
+    const donutSegments = [
+        { label: "Pending", value: statusCounts["pending"] || 0, color: "#fbbf24" },
+        { label: "Assigned", value: statusCounts["assigned"] || 0, color: "#06b6d4" },
+        { label: "Completed", value: statusCounts["completed"] || 0, color: "#10b981" },
+        { label: "Cancelled", value: statusCounts["cancelled"] || 0, color: "#f87171" },
+    ]
 
     return (
         <div className="space-y-6">
@@ -86,7 +100,15 @@ export default async function PatientDashboard() {
                 </div>
 
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">{t.patient.recent}</h3>
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-semibold leading-none tracking-tight">{t.patient.recent}</h3>
+                        {consultations.length > 0 && (
+                            <div className="flex items-center gap-3">
+                                <DonutChart segments={donutSegments} size={120} strokeWidth={16} />
+                                <Legend segments={donutSegments} />
+                            </div>
+                        )}
+                    </div>
                     {consultations.length === 0 ? (
                         <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{t.patient.noConsultations}</p>
                     ) : (
