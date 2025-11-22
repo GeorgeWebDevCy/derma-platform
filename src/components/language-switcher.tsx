@@ -7,6 +7,16 @@ import type { Lang } from "@/lib/i18n"
 const languages: { value: Lang; label: string }[] = [
     { value: "en", label: "English" },
     { value: "es", label: "Español" },
+    { value: "el", label: "Ελληνικά" },
+    { value: "fr", label: "Français" },
+    { value: "de", label: "Deutsch" },
+    { value: "pt", label: "Português" },
+    { value: "it", label: "Italiano" },
+    { value: "nl", label: "Nederlands" },
+    { value: "tr", label: "Türkçe" },
+    { value: "hi", label: "हिन्दी" },
+    { value: "ja", label: "日本語" },
+    { value: "zh", label: "中文" },
 ]
 
 export function LanguageSwitcher({ current }: { current: Lang }) {

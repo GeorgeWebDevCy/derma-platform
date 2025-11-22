@@ -148,10 +148,11 @@ export default async function LandingPage() {
                                 <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.steps.title}</h2>
                                 <p className="text-lg text-white/70">{t.landing.whyCopy}</p>
                                 <div className="flex flex-wrap gap-3 text-sm text-white/70">
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Photo analysis</span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Prescription support</span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Follow-up reminders</span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Multilingual care</span>
+                                    {t.landing.featureChips.map((chip) => (
+                                        <span key={chip} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                                            {chip}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
 
@@ -176,7 +177,7 @@ export default async function LandingPage() {
                     <div className="container mx-auto px-4 md:px-10">
                         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                             <div className="space-y-3">
-                                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Trusted outcomes</p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">{t.landing.outcomes.eyebrow}</p>
                                 <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.outcomes.title}</h2>
                                 <p className="max-w-2xl text-lg text-white/70">{t.landing.outcomes.subtitle}</p>
                             </div>
@@ -228,13 +229,13 @@ export default async function LandingPage() {
             </main>
 
             <footer className="flex flex-col gap-2 border-t border-white/10 px-4 py-6 text-sm text-white/60 sm:flex-row sm:items-center sm:px-10">
-                <p>© 2024 DermaConnect. All rights reserved.</p>
+                <p>(c) 2024 DermaConnect. All rights reserved.</p>
                 <nav className="sm:ml-auto flex gap-4 sm:gap-6">
                     <Link className="transition hover:text-white" href="#">
-                        Terms of Service
+                        {t.common.terms}
                     </Link>
                     <Link className="transition hover:text-white" href="#">
-                        Privacy
+                        {t.common.privacy}
                     </Link>
                 </nav>
             </footer>

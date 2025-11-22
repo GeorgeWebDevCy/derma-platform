@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 
-export const LANGS = ["en", "es"] as const
+export const LANGS = ["en", "es", "el", "fr", "de", "pt", "it", "nl", "tr", "hi", "ja", "zh"] as const
 export type Lang = typeof LANGS[number]
 
 export const SPECIALTIES = [
@@ -22,8 +22,23 @@ export async function getLanguageFromCookie(): Promise<Lang> {
     return LANGS.includes(cookie as Lang) ? (cookie as Lang) : "en"
 }
 
+const dictionaries: Record<Lang, Dictionary> = {
+    en,
+    es,
+    el: en, // TODO: add Greek translations
+    fr: en, // TODO: add French translations
+    de: en, // TODO: add German translations
+    pt: en, // TODO: add Portuguese translations
+    it: en, // TODO: add Italian translations
+    nl: en, // TODO: add Dutch translations
+    tr: en, // TODO: add Turkish translations
+    hi: en, // TODO: add Hindi translations
+    ja: en, // TODO: add Japanese translations
+    zh: en, // TODO: add Chinese translations
+}
+
 export function getDictionary(lang: Lang): Dictionary {
-    return lang === "es" ? es : en
+    return dictionaries[lang] ?? en
 }
 
 const en = {
@@ -38,6 +53,10 @@ const en = {
         language: "Language",
         online: "Online",
         offline: "Offline",
+        terms: "Terms of Service",
+        privacy: "Privacy",
+        genericError: "Something went wrong. Please try again.",
+        goOnlinePrompt: "Go online to view and accept pending requests.",
     },
     landing: {
         hero: {
@@ -69,6 +88,7 @@ const en = {
         whyCopy:
             "From first photo to final follow-up, we combine human expertise with thoughtful technology so you can get answers fast and stay confident in your care.",
         whyBadges: ["Available worldwide", "Secure by default"],
+        featureChips: ["Photo analysis", "Prescription support", "Follow-up reminders", "Multilingual care"],
         steps: {
             title: "A guided journey from first tap to clear skin",
             items: [
@@ -91,6 +111,7 @@ const en = {
             ],
         },
         outcomes: {
+            eyebrow: "Trusted outcomes",
             title: "People feel better with DermaConnect",
             subtitle:
                 "We combine measurable results with compassionate care. Here’s what patients and physicians say about partnering with us.",
@@ -146,6 +167,15 @@ const en = {
         recent: "Recent Consultations",
         noConsultations: "No consultations yet.",
         cancel: "Cancel consultation",
+        doctorLabel: "Doctor",
+        notAssigned: "Not assigned",
+        placeholders: {
+            description: "Brief summary",
+            symptoms: "Key symptoms (e.g. itch, redness)",
+            duration: "Duration (e.g. 3 days)",
+            images: "Image URLs (one per line)",
+            anySpecialty: "Any specialty",
+        },
     },
     doctor: {
         title: "Doctor Workspace",
@@ -161,6 +191,14 @@ const en = {
         notesLabel: "Notes",
         noPending: "No pending requests.",
         noAssigned: "No assigned consultations.",
+        offlineNotice: "You are offline; set yourself online to accept new consultations.",
+        specialtyPrompt: "Choose your specialty below to go online.",
+        noMatch: "No requests matched your specialty. Switch to a different specialty to view all.",
+        specialtyRequired: "Set your specialty before going online",
+        bioHint: "Keep your specialty and bio current; patients will see this when assigned.",
+        filterAll: "Showing all specialties",
+        filterSpecific: (s: string) => `Filtered to ${s}`,
+        acceptTooltip: "Set yourself online to accept requests",
     },
 }
 
@@ -176,6 +214,10 @@ const es: Dictionary = {
         language: "Idioma",
         online: "En línea",
         offline: "Desconectado",
+        terms: "Términos del servicio",
+        privacy: "Privacidad",
+        genericError: "Algo salió mal. Inténtalo nuevamente.",
+        goOnlinePrompt: "Activa en línea para ver y aceptar solicitudes pendientes.",
     },
     landing: {
         hero: {
@@ -209,6 +251,7 @@ const es: Dictionary = {
         whyCopy:
             "Desde la primera foto hasta el seguimiento final, combinamos experiencia humana con tecnología para darte respuestas rápidas y confianza en tu cuidado.",
         whyBadges: ["Disponible en todo el mundo", "Seguro por defecto"],
+        featureChips: ["Análisis de fotos", "Soporte de recetas", "Recordatorios de seguimiento", "Atención multilingüe"],
         steps: {
             title: "Un recorrido guiado hasta una piel sana",
             items: [
@@ -231,6 +274,7 @@ const es: Dictionary = {
             ],
         },
         outcomes: {
+            eyebrow: "Resultados confiables",
             title: "Las personas se sienten mejor con DermaConnect",
             subtitle:
                 "Combinamos resultados medibles con atención empática. Esto dicen pacientes y médicos sobre trabajar con nosotros.",
@@ -286,6 +330,15 @@ const es: Dictionary = {
         recent: "Consultas recientes",
         noConsultations: "Aún no tienes consultas.",
         cancel: "Cancelar consulta",
+        doctorLabel: "Médico",
+        notAssigned: "Sin asignar",
+        placeholders: {
+            description: "Resumen breve",
+            symptoms: "Síntomas clave (p. ej., picor, enrojecimiento)",
+            duration: "Duración (p. ej., 3 días)",
+            images: "URLs de imágenes (una por línea)",
+            anySpecialty: "Cualquier especialidad",
+        },
     },
     doctor: {
         title: "Panel médico",
@@ -301,5 +354,13 @@ const es: Dictionary = {
         notesLabel: "Notas",
         noPending: "Sin solicitudes pendientes.",
         noAssigned: "No tienes consultas asignadas.",
+        offlineNotice: "Estás desconectado; ponte en línea para aceptar nuevas consultas.",
+        specialtyPrompt: "Elige tu especialidad para activar en línea.",
+        noMatch: "No hay solicitudes que coincidan con tu especialidad. Cambia la especialidad para ver todas.",
+        specialtyRequired: "Define tu especialidad antes de conectarte.",
+        bioHint: "Mantén tu especialidad y biografía actualizadas; los pacientes las verán al asignarte.",
+        filterAll: "Mostrando todas las especialidades",
+        filterSpecific: (s: string) => `Filtrado a ${s}`,
+        acceptTooltip: "Ponte en línea para aceptar solicitudes",
     },
 }

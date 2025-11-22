@@ -34,8 +34,8 @@ export default async function DoctorDashboard() {
 
     const missingSpecialty = !doctorProfile?.specialty
     const filterDescription = doctorProfile?.specialty
-        ? `Filtered to ${doctorProfile.specialty}`
-        : "Showing all specialties"
+        ? t.doctor.filterSpecific(doctorProfile.specialty)
+        : t.doctor.filterAll
     const incomingVisible = doctorProfile?.isAvailable
         ? incoming.filter((c) => {
               if (!doctorProfile?.specialty) return true
@@ -52,7 +52,7 @@ export default async function DoctorDashboard() {
                     <form action={setDoctorAvailability}>
                         <input type="hidden" name="status" value="offline" />
                         <Button variant={doctorProfile?.isAvailable ? "outline" : "default"}>
-                            {doctorProfile?.isAvailable ? t.common.offline : t.common.offline}
+                            {t.common.offline}
                         </Button>
                     </form>
                     <form action={setDoctorAvailability}>
@@ -61,7 +61,7 @@ export default async function DoctorDashboard() {
                             className="bg-green-600 hover:bg-green-700"
                             variant={doctorProfile?.isAvailable ? "default" : "outline"}
                             disabled={missingSpecialty}
-                            title={missingSpecialty ? "Set your specialty before going online" : undefined}
+                            title={missingSpecialty ? t.doctor.specialtyRequired : undefined}
                         >
                             {t.common.online}
                         </Button>
@@ -75,7 +75,7 @@ export default async function DoctorDashboard() {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{filterDescription}</p>
                     {incomingVisible.length === 0 ? (
                         <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                            {doctorProfile?.isAvailable ? t.doctor.noPending : "Go online to view and accept pending requests."}
+                            {doctorProfile?.isAvailable ? t.doctor.noPending : t.common.goOnlinePrompt}
                         </p>
                     ) : (
                         <div className="mt-4 space-y-4">
@@ -86,13 +86,13 @@ export default async function DoctorDashboard() {
                     )}
                     {!doctorProfile?.isAvailable && (
                         <div className="mt-2 space-y-1 text-xs text-amber-600 dark:text-amber-400">
-                            <p>You are offline; set yourself online to accept new consultations.</p>
-                            {missingSpecialty && <p>Choose your specialty below to go online.</p>}
+                            <p>{t.doctor.offlineNotice}</p>
+                            {missingSpecialty && <p>{t.doctor.specialtyPrompt}</p>}
                         </div>
                     )}
                     {doctorProfile?.isAvailable && doctorProfile.specialty && incomingVisible.length === 0 && incoming.length > 0 && (
                         <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                            No requests matched your specialty. Switch to a different specialty to view all.
+                            {t.doctor.noMatch}
                         </p>
                     )}
                 </div>
@@ -112,7 +112,7 @@ export default async function DoctorDashboard() {
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
                     <h3 className="font-semibold leading-none tracking-tight">{t.doctor.profile}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                        Keep your specialty and bio current; patients will see this when assigned.
+                        {t.doctor.bioHint}
                     </p>
                     <form action={upsertDoctorProfile} className="mt-4 space-y-3">
                         <div className="space-y-1">
@@ -191,7 +191,7 @@ function ConsultationCardPending({ consultation, isAvailable, labels }: { consul
                     size="sm"
                     className="w-full bg-emerald-600 hover:bg-emerald-700"
                     disabled={!isAvailable}
-                    title={isAvailable ? undefined : "Set yourself online to accept requests"}
+                    title={isAvailable ? undefined : labels.acceptTooltip}
                 >
                     {labels.accept}
                 </Button>

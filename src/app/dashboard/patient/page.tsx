@@ -33,17 +33,17 @@ export default async function PatientDashboard() {
                 <form action={requestConsultation} className="flex flex-col gap-2 md:flex-row md:items-center md:flex-wrap">
                     <input
                         name="description"
-                        placeholder="Brief summary"
+                        placeholder={t.patient.placeholders.description}
                         className="h-10 w-full md:w-48 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <input
                         name="symptoms"
-                        placeholder="Key symptoms (e.g. itch, redness)"
+                        placeholder={t.patient.placeholders.symptoms}
                         className="h-10 w-full md:w-56 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <input
                         name="duration"
-                        placeholder="Duration (e.g. 3 days)"
+                        placeholder={t.patient.placeholders.duration}
                         className="h-10 w-full md:w-40 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <select
@@ -51,7 +51,7 @@ export default async function PatientDashboard() {
                         className="h-10 w-full md:w-56 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         defaultValue=""
                     >
-                        <option value="">Any specialty</option>
+                        <option value="">{t.patient.placeholders.anySpecialty}</option>
                         {SPECIALTIES.map((item) => (
                             <option key={item} value={item}>
                                 {item}
@@ -61,7 +61,7 @@ export default async function PatientDashboard() {
                     <textarea
                         name="images"
                         rows={2}
-                        placeholder="Image URLs (one per line)"
+                        placeholder={t.patient.placeholders.images}
                         className="w-full md:w-[22rem] rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <Button className="bg-emerald-600 hover:bg-emerald-700 md:self-stretch">Request Consultation</Button>
@@ -123,7 +123,7 @@ export default async function PatientDashboard() {
                                         <p className="text-xs text-gray-500 dark:text-gray-400">Duration: {consultation.duration}</p>
                                     )}
                                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    Doctor: {consultation.doctor?.doctorProfile?.specialty ? `${consultation.doctor.doctorProfile.specialty} — ` : ""}{consultation.doctor?.email ?? "Not assigned"}
+                                        {t.patient.doctorLabel}: {consultation.doctor?.doctorProfile?.specialty ? `${consultation.doctor.doctorProfile.specialty} — ` : ""}{consultation.doctor?.email ?? t.patient.notAssigned}
                                     </p>
                                     {consultation.requestedSpecialty && (
                                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
