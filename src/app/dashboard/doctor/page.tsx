@@ -57,7 +57,7 @@ export default async function DoctorDashboard() {
                     ) : (
                         <div className="mt-4 space-y-4">
                             {incoming.map((consultation) => (
-                                <ConsultationCardPending key={consultation.id} consultation={consultation} />
+                                <ConsultationCardPending key={consultation.id} consultation={consultation} isAvailable={doctorProfile?.isAvailable ?? false} />
                             ))}
                         </div>
                     )}
@@ -115,7 +115,7 @@ export default async function DoctorDashboard() {
     )
 }
 
-function ConsultationCardPending({ consultation }: { consultation: any }) {
+function ConsultationCardPending({ consultation, isAvailable }: { consultation: any; isAvailable: boolean }) {
     const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
     return (
         <div className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900 space-y-2">
@@ -146,7 +146,12 @@ function ConsultationCardPending({ consultation }: { consultation: any }) {
             )}
             <form action={acceptConsultation} className="pt-1">
                 <input type="hidden" name="consultationId" value={consultation.id} />
-                <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                <Button
+                    size="sm"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    disabled={!isAvailable}
+                    title={isAvailable ? undefined : "Set yourself online to accept requests"}
+                >
                     Accept Request
                 </Button>
             </form>
