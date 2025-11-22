@@ -38,12 +38,16 @@ export async function POST(request: Request) {
     const description = typeof body.description === "string" && body.description.trim().length > 0
         ? body.description.trim()
         : "New consultation request"
+    const symptoms = typeof body.symptoms === "string" && body.symptoms.trim().length > 0 ? body.symptoms.trim() : null
+    const duration = typeof body.duration === "string" && body.duration.trim().length > 0 ? body.duration.trim() : null
 
     await prisma.consultation.create({
         data: {
             patientId: session.user.id,
             status: "pending",
             description,
+            symptoms,
+            duration,
         },
     })
 

@@ -16,6 +16,8 @@ export async function requestConsultation(formData?: FormData) {
     const session = await getSessionOrThrow()
 
     const description = formData?.get("description")?.toString().trim() || "New consultation request"
+    const symptoms = formData?.get("symptoms")?.toString().trim() || null
+    const duration = formData?.get("duration")?.toString().trim() || null
 
     // Ensure patient profile exists for the requesting user
     const user = await prisma.user.findUnique({
@@ -36,6 +38,8 @@ export async function requestConsultation(formData?: FormData) {
             patientId: user.id,
             status: "pending",
             description,
+            symptoms,
+            duration,
         },
     })
 

@@ -95,6 +95,9 @@ model Consultation {
   doctor    User?    @relation("DoctorConsultations", fields: [doctorId], references: [id])
   
   description String? @db.Text
+  symptoms    String? @db.Text
+  duration    String?
+  notes       String? @db.Text // doctor notes
   images      String? @db.Text // JSON array of URLs
   
   createdAt DateTime @default(now())

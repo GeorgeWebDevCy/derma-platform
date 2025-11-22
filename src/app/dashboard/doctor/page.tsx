@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { acceptConsultation, completeConsultation } from "@/app/actions"
+import { acceptConsultation, completeConsultation, upsertDoctorProfile } from "@/app/actions"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -15,7 +15,7 @@ export default async function DoctorDashboard() {
         redirect("/dashboard/patient")
     }
 
-    const [incoming, myConsultations] = await Promise.all([
+    const [incoming, myConsultations, doctorProfile] = await Promise.all([
         prisma.consultation.findMany({
             where: { status: "pending" },
             include: { patient: true },
@@ -26,6 +26,7 @@ export default async function DoctorDashboard() {
             include: { patient: true },
             orderBy: { createdAt: "desc" },
         }),
+        prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
     ])
 
     return (
@@ -80,6 +81,15 @@ export default async function DoctorDashboard() {
                                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                                         {consultation.description || "No description"}
                                     </p>
+                                    {consultation.symptoms && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Symptoms: {consultation.symptoms}</p>
+                                    )}
+                                    {consultation.duration && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Duration: {consultation.duration}</p>
+                                    )}
+                                    {consultation.notes && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Notes: {consultation.notes}</p>
+                                    )}
                                     {consultation.status !== "completed" && (
                                         <form action={completeConsultation} className="mt-2">
                                             <input type="hidden" name="consultationId" value={consultation.id} />
@@ -92,6 +102,36 @@ export default async function DoctorDashboard() {
                             ))}
                         </div>
                     )}
+                </div>
+                <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
+                    <h3 className="font-semibold leading-none tracking-tight">My Profile</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                        Keep your specialty and bio current; patients will see this when assigned.
+                    </p>
+                    <form action={upsertDoctorProfile} className="mt-4 space-y-3">
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium" htmlFor="specialty">Specialty</label>
+                            <input
+                                id="specialty"
+                                name="specialty"
+                                defaultValue={doctorProfile?.specialty ?? ""}
+                                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium" htmlFor="bio">Bio</label>
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                rows={3}
+                                defaultValue={doctorProfile?.bio ?? ""}
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            />
+                        </div>
+                        <Button type="submit" size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                            Save profile
+                        </Button>
+                    </form>
                 </div>
             </div>
         </div>
