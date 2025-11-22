@@ -210,7 +210,7 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
                     Save notes
                 </Button>
             </form>
-            {consultation.status !== "completed" && (
+            {consultation.status === "assigned" && (
                 <div className="mt-2 grid grid-cols-2 gap-2">
                     <form action={releaseConsultation}>
                         <input type="hidden" name="consultationId" value={consultation.id} />
