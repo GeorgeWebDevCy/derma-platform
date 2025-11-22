@@ -23,7 +23,7 @@ export default async function DoctorDashboard() {
             orderBy: { createdAt: "asc" },
         }),
         prisma.consultation.findMany({
-            where: { doctorId: session.user.id },
+            where: { doctorId: session.user.id, NOT: { status: "cancelled" } },
             include: { patient: true },
             orderBy: { createdAt: "desc" },
         }),
