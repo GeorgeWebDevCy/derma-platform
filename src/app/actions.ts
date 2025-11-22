@@ -167,10 +167,18 @@ export async function setDoctorAvailability(formData: FormData) {
     const status = formData.get("status")?.toString()
     const isAvailable = status === "online"
 
+    const profile = await prisma.doctorProfile.findUnique({
+        where: { userId: session.user.id },
+    })
+
+    if (isAvailable && !profile?.specialty) {
+        throw new Error("Set your specialty before going online")
+    }
+
     await prisma.doctorProfile.upsert({
         where: { userId: session.user.id },
         update: { isAvailable },
-        create: { userId: session.user.id, isAvailable },
+        create: { userId: session.user.id, isAvailable, specialty: profile?.specialty ?? null },
     })
 
     revalidatePath("/dashboard/doctor")

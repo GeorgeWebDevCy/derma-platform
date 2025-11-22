@@ -30,6 +30,7 @@ export default async function DoctorDashboard() {
         prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
     ])
 
+    const missingSpecialty = !doctorProfile?.specialty
     const incomingVisible = doctorProfile?.isAvailable
         ? incoming.filter((c) => {
               if (!doctorProfile?.specialty) return true
@@ -51,7 +52,12 @@ export default async function DoctorDashboard() {
                     </form>
                     <form action={setDoctorAvailability}>
                         <input type="hidden" name="status" value="online" />
-                        <Button className="bg-green-600 hover:bg-green-700" variant={doctorProfile?.isAvailable ? "default" : "outline"}>
+                        <Button
+                            className="bg-green-600 hover:bg-green-700"
+                            variant={doctorProfile?.isAvailable ? "default" : "outline"}
+                            disabled={missingSpecialty}
+                            title={missingSpecialty ? "Set your specialty before going online" : undefined}
+                        >
                             Go Online
                         </Button>
                     </form>
@@ -73,9 +79,10 @@ export default async function DoctorDashboard() {
                         </div>
                     )}
                     {!doctorProfile?.isAvailable && (
-                        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                            You are offline; set yourself online to accept new consultations.
-                        </p>
+                        <div className="mt-2 space-y-1 text-xs text-amber-600 dark:text-amber-400">
+                            <p>You are offline; set yourself online to accept new consultations.</p>
+                            {missingSpecialty && <p>Choose your specialty below to go online.</p>}
+                        </div>
                     )}
                 </div>
 
