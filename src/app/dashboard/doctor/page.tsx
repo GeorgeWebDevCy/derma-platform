@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { acceptConsultation, completeConsultation, releaseConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
-import { SPECIALTIES } from "@/lib/specialties"
+import { SPECIALTIES, getDictionary, getLanguageFromCookie } from "@/lib/i18n"
 
 export default async function DoctorDashboard() {
     const session = await auth()
+    const lang = await getLanguageFromCookie()
+    const t = getDictionary(lang)
 
     if (!session) {
         redirect("/auth/login")
@@ -45,12 +47,12 @@ export default async function DoctorDashboard() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Doctor Workspace</h1>
+                <h1 className="text-2xl font-bold">{t.doctor.title}</h1>
                 <div className="flex gap-2">
                     <form action={setDoctorAvailability}>
                         <input type="hidden" name="status" value="offline" />
                         <Button variant={doctorProfile?.isAvailable ? "outline" : "default"}>
-                            {doctorProfile?.isAvailable ? "Go Offline" : "Unavailable"}
+                            {doctorProfile?.isAvailable ? t.common.offline : t.common.offline}
                         </Button>
                     </form>
                     <form action={setDoctorAvailability}>
@@ -61,7 +63,7 @@ export default async function DoctorDashboard() {
                             disabled={missingSpecialty}
                             title={missingSpecialty ? "Set your specialty before going online" : undefined}
                         >
-                            Go Online
+                            {t.common.online}
                         </Button>
                     </form>
                 </div>
@@ -69,16 +71,16 @@ export default async function DoctorDashboard() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">Incoming Requests</h3>
+                    <h3 className="font-semibold leading-none tracking-tight">{t.doctor.incoming}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{filterDescription}</p>
                     {incomingVisible.length === 0 ? (
                         <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                            {doctorProfile?.isAvailable ? "No pending requests." : "Go online to view and accept pending requests."}
+                            {doctorProfile?.isAvailable ? t.doctor.noPending : "Go online to view and accept pending requests."}
                         </p>
                     ) : (
                         <div className="mt-4 space-y-4">
                             {incomingVisible.map((consultation) => (
-                                <ConsultationCardPending key={consultation.id} consultation={consultation} isAvailable={doctorProfile?.isAvailable ?? false} />
+                                <ConsultationCardPending key={consultation.id} consultation={consultation} isAvailable={doctorProfile?.isAvailable ?? false} labels={t.doctor} />
                             ))}
                         </div>
                     )}
@@ -96,19 +98,19 @@ export default async function DoctorDashboard() {
                 </div>
 
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">My Consultations</h3>
+                    <h3 className="font-semibold leading-none tracking-tight">{t.doctor.myConsultations}</h3>
                     {myConsultations.length === 0 ? (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">No assigned consultations.</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{t.doctor.noAssigned}</p>
                     ) : (
                         <div className="mt-4 space-y-4">
                             {myConsultations.map((consultation) => (
-                                <ConsultationCardAssigned key={consultation.id} consultation={consultation} />
+                                <ConsultationCardAssigned key={consultation.id} consultation={consultation} labels={t.doctor} />
                             ))}
                         </div>
                     )}
                 </div>
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">My Profile</h3>
+                    <h3 className="font-semibold leading-none tracking-tight">{t.doctor.profile}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
                         Keep your specialty and bio current; patients will see this when assigned.
                     </p>
@@ -149,7 +151,9 @@ export default async function DoctorDashboard() {
     )
 }
 
-function ConsultationCardPending({ consultation, isAvailable }: { consultation: any; isAvailable: boolean }) {
+type DoctorLabels = ReturnType<typeof getDictionary>["doctor"]
+
+function ConsultationCardPending({ consultation, isAvailable, labels }: { consultation: any; isAvailable: boolean; labels: DoctorLabels }) {
     const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
     return (
         <div className="p-4 border rounded-md bg-gray-50 dark:bg-gray-900 space-y-2">
@@ -189,14 +193,14 @@ function ConsultationCardPending({ consultation, isAvailable }: { consultation: 
                     disabled={!isAvailable}
                     title={isAvailable ? undefined : "Set yourself online to accept requests"}
                 >
-                    Accept Request
+                    {labels.accept}
                 </Button>
             </form>
         </div>
     )
 }
 
-function ConsultationCardAssigned({ consultation }: { consultation: any }) {
+function ConsultationCardAssigned({ consultation, labels }: { consultation: any; labels: DoctorLabels }) {
     const images = consultation.images ? (JSON.parse(consultation.images) as string[]) : []
     return (
         <div className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4">
@@ -237,11 +241,11 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
                 </div>
             )}
             {consultation.notes && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Notes: {consultation.notes}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{labels.notesLabel}: {consultation.notes}</p>
             )}
             <form action={updateConsultationNotes} className="mt-3 space-y-2">
                 <input type="hidden" name="consultationId" value={consultation.id} />
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Notes</label>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">{labels.notesLabel}</label>
                 <textarea
                     name="notes"
                     defaultValue={consultation.notes ?? ""}
@@ -250,7 +254,7 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
                     placeholder="Add assessment / plan"
                 />
                 <Button type="submit" size="sm" variant="outline" className="w-full">
-                    Save notes
+                    {labels.saveNotes}
                 </Button>
             </form>
             {consultation.status === "assigned" && (
@@ -258,13 +262,13 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
                     <form action={releaseConsultation}>
                         <input type="hidden" name="consultationId" value={consultation.id} />
                         <Button size="sm" variant="outline" className="w-full">
-                            Release to queue
+                            {labels.release}
                         </Button>
                     </form>
                     <form action={completeConsultation}>
                         <input type="hidden" name="consultationId" value={consultation.id} />
                         <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
-                            Mark Completed
+                            {labels.markCompleted}
                         </Button>
                     </form>
                 </div>

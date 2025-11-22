@@ -3,7 +3,8 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { SPECIALTIES } from "@/lib/specialties"
+import { SPECIALTIES, LANGS, type Lang } from "@/lib/i18n"
+import { cookies } from "next/headers"
 
 async function getSessionOrThrow() {
     const session = await auth()
@@ -56,6 +57,14 @@ export async function requestConsultation(formData?: FormData) {
 
     revalidatePath("/dashboard/patient")
     revalidatePath("/dashboard/doctor")
+}
+
+export async function setLanguage(lang: Lang) {
+    "use server"
+    const target = LANGS.includes(lang) ? lang : "en"
+    const store = await cookies()
+    store.set("lang", target, { path: "/", maxAge: 60 * 60 * 24 * 365 })
+    revalidatePath("/")
 }
 
 export async function acceptConsultation(formData: FormData) {

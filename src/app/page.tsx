@@ -1,81 +1,39 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getDictionary, getLanguageFromCookie } from "@/lib/i18n"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
-export default function LandingPage() {
-    const highlights = [
-        {
-            title: "Board-certified specialists",
-            description: "Every dermatologist on DermaConnect is vetted, licensed, and supported by continuous quality reviews.",
-        },
-        {
-            title: "Results in hours, not weeks",
-            description: "Submit photos securely and get a personalized plan faster than traditional clinic waitlists.",
-        },
-        {
-            title: "24/7 follow-ups",
-            description: "Chat with your care team any time. We keep your skin journey on track with proactive check-ins.",
-        },
-    ]
+export default async function LandingPage() {
+    const lang = await getLanguageFromCookie()
+    const t = getDictionary(lang)
 
-    const steps = [
-        {
-            label: "Share your concern",
-            detail: "Upload clear photos and describe symptoms—no appointments required.",
-        },
-        {
-            label: "Get matched instantly",
-            detail: "Our routing engine pairs you with the right specialist based on condition, language, and urgency.",
-        },
-        {
-            label: "Receive a tailored plan",
-            detail: "You get a clear diagnosis, treatment roadmap, and prescriptions when appropriate.",
-        },
-        {
-            label: "Track progress",
-            detail: "Follow-up messages, reminders, and photo comparisons ensure your skin keeps improving.",
-        },
-    ]
-
-    const testimonials = [
-        {
-            quote: "I waited months for an in-person visit. DermaConnect gave me answers overnight.",
-            name: "Sara, 29",
-            role: "Psoriasis patient",
-        },
-        {
-            quote: "As a physician, I can collaborate seamlessly with patients across time zones.",
-            name: "Dr. K. Allen",
-            role: "Board-certified dermatologist",
-        },
-        {
-            quote: "The progress tracker kept me consistent. My acne cleared in weeks, not months.",
-            name: "Michael, 24",
-            role: "Member since 2023",
-        },
-    ]
+    const highlights = t.landing.highlights
+    const steps = t.landing.steps.items
+    const testimonials = t.landing.outcomes.testimonials
 
     return (
         <div className="flex min-h-screen flex-col bg-slate-950 text-white">
             <header className="relative z-20 flex h-16 items-center border-b border-white/10 px-4 backdrop-blur md:px-10">
                 <Link className="flex items-center gap-3" href="#">
                     <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 shadow-lg shadow-emerald-500/30" />
-                    <span className="text-xl font-semibold tracking-tight">DermaConnect</span>
+                    <span className="text-xl font-semibold tracking-tight">{t.common.brand}</span>
                 </Link>
                 <nav className="ml-auto flex items-center gap-4 text-sm font-medium text-white/80 sm:gap-8">
                     <Link className="transition hover:text-white" href="#features">
-                        Features
+                        {t.common.nav.features}
                     </Link>
                     <Link className="transition hover:text-white" href="#doctors">
-                        For Doctors
+                        {t.common.nav.doctors}
                     </Link>
                     <Link className="transition hover:text-white" href="/auth/login">
-                        Sign In
+                        {t.common.nav.signin}
                     </Link>
                     <Link href="/auth/doctor/signup">
                         <Button className="bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
-                            Join as Doctor
+                            {t.common.nav.joinDoctor}
                         </Button>
                     </Link>
+                    <LanguageSwitcher current={lang} />
                 </nav>
             </header>
 
@@ -89,29 +47,29 @@ export default function LandingPage() {
                         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                             <div className="space-y-6 text-left">
                                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100">
-                                    Dermatology, reimagined
+                                    {t.landing.hero.eyebrow}
                                 </div>
                                 <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                                    Expert skin care without the wait.
+                                    {t.landing.hero.title}
                                 </h1>
                                 <p className="max-w-2xl text-lg text-slate-200/80 sm:text-xl">
-                                    DermaConnect pairs you with world-class dermatologists for rapid answers, personalized treatment plans, and ongoing support—whenever and wherever you need it.
+                                    {t.landing.hero.subtitle}
                                 </p>
                                 <div className="flex flex-wrap gap-4">
                                     <Link href="/auth/login">
                                         <Button className="h-12 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-6 text-base font-semibold text-slate-950 shadow-xl shadow-emerald-500/30 transition hover:scale-[1.02]">
-                                            Get care now
+                                            {t.landing.hero.primary}
                                         </Button>
                                     </Link>
                                     <Link href="/auth/doctor/signup">
                                         <Button variant="outline" className="h-12 rounded-xl border-white/30 bg-white/5 px-6 text-base font-semibold text-white transition hover:border-white hover:bg-white/10">
-                                            I&apos;m a dermatologist
+                                            {t.landing.hero.secondary}
                                         </Button>
                                     </Link>
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-3">
-                                    {["< 2 hrs average response", "97% patient satisfaction", "Secure & HIPAA-ready"].map((item) => (
+                                    {t.landing.hero.stats.map((item) => (
                                         <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white/80">
                                             {item}
                                         </div>
@@ -154,20 +112,18 @@ export default function LandingPage() {
                     <div className="container mx-auto px-4 md:px-10">
                         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                             <div className="space-y-3">
-                                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-200">Why DermaConnect</p>
-                                <h2 className="text-3xl font-bold leading-tight sm:text-4xl">Designed for peace of mind</h2>
-                                <p className="max-w-2xl text-lg text-white/70">
-                                    From first photo to final follow-up, we combine human expertise with thoughtful technology so you can get answers fast and stay confident in your care.
-                                </p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-200">{t.landing.whyTitle}</p>
+                                <h2 className="text-3xl font-bold leading-tight sm:text-4xl">{t.landing.whyHeading}</h2>
+                                <p className="max-w-2xl text-lg text-white/70">{t.landing.whyCopy}</p>
                             </div>
                             <div className="flex gap-4 text-sm text-white/70">
                                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
                                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                                    Available worldwide
+                                    {t.landing.whyBadges[0]}
                                 </div>
                                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
                                     <span className="h-2 w-2 rounded-full bg-cyan-400" />
-                                    Secure by default
+                                    {t.landing.whyBadges[1]}
                                 </div>
                             </div>
                         </div>
@@ -188,11 +144,9 @@ export default function LandingPage() {
                     <div className="container mx-auto px-4 md:px-10">
                         <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
                             <div className="space-y-4">
-                                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-200">How it works</p>
-                                <h2 className="text-3xl font-bold sm:text-4xl">A guided journey from first tap to clear skin</h2>
-                                <p className="text-lg text-white/70">
-                                    We obsess over every touchpoint so patients and dermatologists can focus on results instead of logistics.
-                                </p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-200">{t.landing.nav?.doctors ?? t.common.nav.doctors}</p>
+                                <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.steps.title}</h2>
+                                <p className="text-lg text-white/70">{t.landing.whyCopy}</p>
                                 <div className="flex flex-wrap gap-3 text-sm text-white/70">
                                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Photo analysis</span>
                                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Prescription support</span>
@@ -223,24 +177,16 @@ export default function LandingPage() {
                         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                             <div className="space-y-3">
                                 <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Trusted outcomes</p>
-                                <h2 className="text-3xl font-bold sm:text-4xl">People feel better with DermaConnect</h2>
-                                <p className="max-w-2xl text-lg text-white/70">
-                                    We combine measurable results with compassionate care. Here’s what patients and physicians say about partnering with us.
-                                </p>
+                                <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.outcomes.title}</h2>
+                                <p className="max-w-2xl text-lg text-white/70">{t.landing.outcomes.subtitle}</p>
                             </div>
                             <div className="grid grid-cols-3 gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 text-center text-white/80">
-                                <div>
-                                    <p className="text-3xl font-bold text-white">40k+</p>
-                                    <p className="text-sm">Visits resolved</p>
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-white">18</p>
-                                    <p className="text-sm">Countries served</p>
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-white">4.9/5</p>
-                                    <p className="text-sm">Avg. satisfaction</p>
-                                </div>
+                                {t.landing.outcomes.metrics.map((metric) => (
+                                    <div key={metric.label}>
+                                        <p className="text-3xl font-bold text-white">{metric.value}</p>
+                                        <p className="text-sm">{metric.label}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -260,21 +206,19 @@ export default function LandingPage() {
                     <div className="container mx-auto px-4 md:px-10">
                         <div className="grid gap-8 rounded-3xl border border-white/10 bg-gradient-to-r from-emerald-500/20 via-cyan-500/15 to-blue-500/20 px-6 py-10 text-center shadow-2xl sm:px-10">
                             <div className="space-y-2">
-                                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-100">Ready when you are</p>
-                                <h2 className="text-3xl font-bold sm:text-4xl">Start your skin transformation today</h2>
-                                <p className="mx-auto max-w-2xl text-lg text-white/80">
-                                    Create your secure account in minutes and connect with a dermatologist who can give you answers, clarity, and ongoing support.
-                                </p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-100">{t.landing.cta.eyebrow}</p>
+                                <h2 className="text-3xl font-bold sm:text-4xl">{t.landing.cta.title}</h2>
+                                <p className="mx-auto max-w-2xl text-lg text-white/80">{t.landing.cta.subtitle}</p>
                             </div>
                             <div className="flex flex-wrap justify-center gap-4">
                                 <Link href="/auth/login">
                                     <Button className="h-12 rounded-xl bg-white text-base font-semibold text-slate-900 shadow-lg transition hover:-translate-y-[2px]">
-                                        Join as patient
+                                        {t.landing.cta.patient}
                                     </Button>
                                 </Link>
                                 <Link href="/auth/doctor/signup">
                                     <Button variant="outline" className="h-12 rounded-xl border-white/40 bg-white/10 text-base font-semibold text-white transition hover:border-white hover:bg-white/20">
-                                        Partner as dermatologist
+                                        {t.landing.cta.doctor}
                                     </Button>
                                 </Link>
                             </div>

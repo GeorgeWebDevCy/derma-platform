@@ -1,14 +1,21 @@
-
 import { signIn } from "@/auth"
 import { Button } from "@/components/ui/button"
+import { getDictionary, getLanguageFromCookie } from "@/lib/i18n"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
-export default function LoginPage() {
+export default async function LoginPage() {
+    const lang = await getLanguageFromCookie()
+    const t = getDictionary(lang)
+
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
-                <div className="space-y-2 text-center">
-                    <h1 className="text-3xl font-bold">Sign In</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Enter your email to receive a magic link</p>
+        <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+            <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-md dark:bg-gray-800">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-bold">{t.auth.loginTitle}</h1>
+                        <p className="text-gray-500 dark:text-gray-400">{t.auth.loginSubtitle}</p>
+                    </div>
+                    <LanguageSwitcher current={lang} />
                 </div>
                 <form
                     action={async (formData) => {
@@ -19,7 +26,7 @@ export default function LoginPage() {
                 >
                     <div className="space-y-2">
                         <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Email
+                            {t.auth.emailLabel}
                         </label>
                         <input
                             id="email"
@@ -31,7 +38,7 @@ export default function LoginPage() {
                         />
                     </div>
                     <Button type="submit" className="w-full">
-                        Send Magic Link
+                        {t.auth.submit}
                     </Button>
                 </form>
             </div>

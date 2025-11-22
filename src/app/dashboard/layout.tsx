@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getDictionary, getLanguageFromCookie } from "@/lib/i18n"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default async function DashboardLayout({
     children,
@@ -9,6 +11,8 @@ export default async function DashboardLayout({
     children: React.ReactNode
 }) {
     const session = await auth()
+    const lang = await getLanguageFromCookie()
+    const t = getDictionary(lang)
 
     if (!session) {
         redirect("/auth/login")
@@ -18,12 +22,13 @@ export default async function DashboardLayout({
         <div className="flex min-h-screen flex-col">
             <header className="flex h-14 items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
                 <Link className="flex items-center gap-2 font-semibold" href="#">
-                    <span className="">DermaConnect</span>
+                    <span className="">{t.common.brand}</span>
                 </Link>
                 <div className="ml-auto flex items-center gap-4">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {session.user?.email} ({session.user?.role})
+                        {t.dashboard.headerSignedIn(session.user?.email ?? "", session.user?.role ?? "")}
                     </span>
+                    <LanguageSwitcher current={lang} />
                     <form
                         action={async () => {
                             "use server"
@@ -33,7 +38,7 @@ export default async function DashboardLayout({
                             redirect("/")
                         }}
                     >
-                        <Button size="sm" variant="outline">Sign Out</Button>
+                        <Button size="sm" variant="outline">{t.dashboard.signOut}</Button>
                     </form>
                 </div>
             </header>

@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { cancelConsultation, requestConsultation } from "@/app/actions"
 import { prisma } from "@/lib/prisma"
-import { SPECIALTIES } from "@/lib/specialties"
+import { getDictionary, getLanguageFromCookie, SPECIALTIES } from "@/lib/i18n"
 
 export default async function PatientDashboard() {
     const session = await auth()
+    const lang = await getLanguageFromCookie()
+    const t = getDictionary(lang)
 
     if (!session) {
         redirect("/auth/login")
@@ -27,7 +29,7 @@ export default async function PatientDashboard() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Patient Dashboard</h1>
+                <h1 className="text-2xl font-bold">{t.patient.title}</h1>
                 <form action={requestConsultation} className="flex flex-col gap-2 md:flex-row md:items-center md:flex-wrap">
                     <input
                         name="description"
@@ -68,13 +70,13 @@ export default async function PatientDashboard() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">My Care Team</h3>
+                    <h3 className="font-semibold leading-none tracking-tight">{t.patient.careTeam}</h3>
                     <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <p>Assigned dermatologist: {assignedDoctor ? assignedDoctor.email ?? "Assigned" : "Not yet assigned"}</p>
-                        <p>Status: {consultations.some((c) => c.status === "pending" || c.status === "assigned") ? "Active" : "Idle"}</p>
+                        <p>{t.patient.assigned}: {assignedDoctor ? assignedDoctor.email ?? "Assigned" : "Not yet assigned"}</p>
+                        <p>{t.patient.status}: {consultations.some((c) => c.status === "pending" || c.status === "assigned") ? "Active" : "Idle"}</p>
                         {assignedDoctor && (
                             <p>
-                                Availability:{" "}
+                                {t.patient.availability}:{" "}
                                 <span className={assignedDoctor.doctorProfile?.isAvailable ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
                                     {assignedDoctor.doctorProfile?.isAvailable ? "Online" : "Offline"}
                                 </span>
@@ -84,9 +86,9 @@ export default async function PatientDashboard() {
                 </div>
 
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
-                    <h3 className="font-semibold leading-none tracking-tight">Recent Consultations</h3>
+                    <h3 className="font-semibold leading-none tracking-tight">{t.patient.recent}</h3>
                     {consultations.length === 0 ? (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">No consultations yet.</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{t.patient.noConsultations}</p>
                     ) : (
                         <div className="mt-4 space-y-3">
                             {consultations.map((consultation) => {
@@ -137,7 +139,7 @@ export default async function PatientDashboard() {
                                         <form action={cancelConsultation} className="mt-3">
                                             <input type="hidden" name="consultationId" value={consultation.id} />
                                             <Button variant="outline" size="sm" className="w-full">
-                                                Cancel consultation
+                                                {t.patient.cancel}
                                             </Button>
                                         </form>
                                     )}
