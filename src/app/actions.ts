@@ -60,9 +60,13 @@ export async function acceptConsultation(formData: FormData) {
     if (!id) throw new Error("Missing consultationId")
     if (session.user.role !== "doctor") throw new Error("Only doctors can accept consultations")
 
-    const consultation = await prisma.consultation.findUnique({ where: { id } })
+    const [consultation, doctorProfile] = await Promise.all([
+        prisma.consultation.findUnique({ where: { id } }),
+        prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
+    ])
     if (!consultation) throw new Error("Consultation not found")
     if (consultation.status !== "pending") throw new Error("Consultation already assigned")
+    if (!doctorProfile?.isAvailable) throw new Error("You must be online to accept consultations")
 
     await prisma.consultation.update({
         where: { id },

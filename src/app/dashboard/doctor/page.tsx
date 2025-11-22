@@ -61,6 +61,11 @@ export default async function DoctorDashboard() {
                             ))}
                         </div>
                     )}
+                    {!doctorProfile?.isAvailable && (
+                        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                            You are offline; set yourself online to accept new consultations.
+                        </p>
+                    )}
                 </div>
 
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
