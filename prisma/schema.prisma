@@ -69,6 +69,7 @@ model DoctorProfile {
   bio         String? @db.Text
   specialty   String?
   isVerified  Boolean @default(false)
+  isAvailable Boolean @default(false)
   stripeAccountId String?
   
   createdAt DateTime @default(now())

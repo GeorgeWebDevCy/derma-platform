@@ -129,3 +129,20 @@ export async function updateConsultationNotes(formData: FormData) {
     revalidatePath("/dashboard/doctor")
     revalidatePath("/dashboard/patient")
 }
+
+export async function setDoctorAvailability(formData: FormData) {
+    const session = await getSessionOrThrow()
+    if (session.user.role !== "doctor") throw new Error("Only doctors can set availability")
+
+    const status = formData.get("status")?.toString()
+    const isAvailable = status === "online"
+
+    await prisma.doctorProfile.upsert({
+        where: { userId: session.user.id },
+        update: { isAvailable },
+        create: { userId: session.user.id, isAvailable },
+    })
+
+    revalidatePath("/dashboard/doctor")
+    revalidatePath("/dashboard/patient")
+}

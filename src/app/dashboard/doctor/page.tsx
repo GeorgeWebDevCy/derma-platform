@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { acceptConsultation, completeConsultation, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
+import { acceptConsultation, completeConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -34,8 +34,18 @@ export default async function DoctorDashboard() {
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Doctor Workspace</h1>
                 <div className="flex gap-2">
-                    <Button variant="outline">Unavailable</Button>
-                    <Button className="bg-green-600 hover:bg-green-700">Go Online</Button>
+                    <form action={setDoctorAvailability}>
+                        <input type="hidden" name="status" value="offline" />
+                        <Button variant={doctorProfile?.isAvailable ? "outline" : "default"}>
+                            {doctorProfile?.isAvailable ? "Go Offline" : "Unavailable"}
+                        </Button>
+                    </form>
+                    <form action={setDoctorAvailability}>
+                        <input type="hidden" name="status" value="online" />
+                        <Button className="bg-green-600 hover:bg-green-700" variant={doctorProfile?.isAvailable ? "default" : "outline"}>
+                            Go Online
+                        </Button>
+                    </form>
                 </div>
             </div>
 

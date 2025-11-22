@@ -59,6 +59,14 @@ export default async function PatientDashboard() {
                     <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
                         <p>Assigned dermatologist: {assignedDoctor ? assignedDoctor.email ?? "Assigned" : "Not yet assigned"}</p>
                         <p>Status: {consultations.some((c) => c.status === "pending" || c.status === "assigned") ? "Active" : "Idle"}</p>
+                        {assignedDoctor && (
+                            <p>
+                                Availability:{" "}
+                                <span className={assignedDoctor.doctorProfile?.isAvailable ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+                                    {assignedDoctor.doctorProfile?.isAvailable ? "Online" : "Offline"}
+                                </span>
+                            </p>
+                        )}
                     </div>
                 </div>
 
