@@ -96,6 +96,27 @@ export async function completeConsultation(formData: FormData) {
     revalidatePath("/dashboard/patient")
 }
 
+export async function releaseConsultation(formData: FormData) {
+    const session = await getSessionOrThrow()
+    if (session.user.role !== "doctor") throw new Error("Only doctors can release consultations")
+
+    const id = formData.get("consultationId")?.toString()
+    if (!id) throw new Error("Missing consultationId")
+
+    const consultation = await prisma.consultation.findUnique({ where: { id } })
+    if (!consultation) throw new Error("Consultation not found")
+    if (consultation.doctorId !== session.user.id) throw new Error("You are not assigned to this consultation")
+    if (consultation.status !== "assigned") throw new Error("Only assigned consultations can be released")
+
+    await prisma.consultation.update({
+        where: { id },
+        data: { status: "pending", doctorId: null },
+    })
+
+    revalidatePath("/dashboard/doctor")
+    revalidatePath("/dashboard/patient")
+}
+
 export async function upsertDoctorProfile(formData: FormData) {
     const session = await getSessionOrThrow()
     if (session.user.role !== "doctor") throw new Error("Only doctors can update doctor profile")

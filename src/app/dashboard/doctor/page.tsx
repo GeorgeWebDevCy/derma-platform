@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { acceptConsultation, completeConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
+import { acceptConsultation, completeConsultation, releaseConsultation, setDoctorAvailability, upsertDoctorProfile, updateConsultationNotes } from "@/app/actions"
 
 export default async function DoctorDashboard() {
     const session = await auth()
@@ -211,12 +211,20 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
                 </Button>
             </form>
             {consultation.status !== "completed" && (
-                <form action={completeConsultation} className="mt-2">
-                    <input type="hidden" name="consultationId" value={consultation.id} />
-                    <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
-                        Mark Completed
-                    </Button>
-                </form>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                    <form action={releaseConsultation}>
+                        <input type="hidden" name="consultationId" value={consultation.id} />
+                        <Button size="sm" variant="outline" className="w-full">
+                            Release to queue
+                        </Button>
+                    </form>
+                    <form action={completeConsultation}>
+                        <input type="hidden" name="consultationId" value={consultation.id} />
+                        <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                            Mark Completed
+                        </Button>
+                    </form>
+                </div>
             )}
         </div>
     )
