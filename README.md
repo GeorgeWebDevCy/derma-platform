@@ -68,3 +68,17 @@ The app uses **Magic Links** for authentication.
 -   Check if MySQL is running.
 -   Verify the `DATABASE_URL` in `.env` is correct.
 -   If using a cloud provider (PlanetScale, AWS), ensure your IP is whitelisted.
+
+## Feature & Route Status
+
+-   Landing page (`/`) with marketing sections
+-   Magic-link login (`/auth/login`) wired to Auth.js + Resend provider
+-   Authenticated dashboards: patient (`/dashboard/patient`) and doctor (`/dashboard/doctor`) with placeholder UI
+-   **Planned / not yet implemented:**
+    -   Doctor onboarding (`/auth/doctor/signup`) and profile verification flow
+    -   Patient onboarding/intake, symptoms + photo upload, and richer consultation request UI
+    -   Consultation list, filtering, and matching logic in dashboards
+    -   Notifications/email templates for magic links and consultation updates
+    -   Billing/payments (Stripe) and doctor availability toggles
+    -   File storage for images (S3/Cloudflare R2) and CDN delivery
+    -   Role-based `/dashboard` landing redirect and consultation API routes
