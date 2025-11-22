@@ -31,6 +31,9 @@ export default async function DoctorDashboard() {
     ])
 
     const missingSpecialty = !doctorProfile?.specialty
+    const filterDescription = doctorProfile?.specialty
+        ? `Filtered to ${doctorProfile.specialty}`
+        : "Showing all specialties"
     const incomingVisible = doctorProfile?.isAvailable
         ? incoming.filter((c) => {
               if (!doctorProfile?.specialty) return true
@@ -67,6 +70,7 @@ export default async function DoctorDashboard() {
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
                     <h3 className="font-semibold leading-none tracking-tight">Incoming Requests</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{filterDescription}</p>
                     {incomingVisible.length === 0 ? (
                         <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
                             {doctorProfile?.isAvailable ? "No pending requests." : "Go online to view and accept pending requests."}
@@ -83,6 +87,11 @@ export default async function DoctorDashboard() {
                             <p>You are offline; set yourself online to accept new consultations.</p>
                             {missingSpecialty && <p>Choose your specialty below to go online.</p>}
                         </div>
+                    )}
+                    {doctorProfile?.isAvailable && doctorProfile.specialty && incomingVisible.length === 0 && incoming.length > 0 && (
+                        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                            No requests matched your specialty. Switch to a different specialty to view all.
+                        </p>
                     )}
                 </div>
 
@@ -193,7 +202,17 @@ function ConsultationCardAssigned({ consultation }: { consultation: any }) {
         <div className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4">
             <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">{consultation.patient?.email ?? "Patient"}</p>
-                <span className="text-xs capitalize text-gray-500">{consultation.status}</span>
+                <span
+                    className={`text-xs capitalize rounded-full px-2 py-1 ${
+                        consultation.status === "assigned"
+                            ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-100"
+                            : consultation.status === "completed"
+                            ? "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                            : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                    }`}
+                >
+                    {consultation.status}
+                </span>
             </div>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                 {consultation.description || "No description"}
