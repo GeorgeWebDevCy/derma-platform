@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { prisma } from "@/lib/prisma"
 import { upsertDoctorProfile } from "@/app/actions"
-import { SPECIALTIES } from "@/lib/specialties"
+import { SPECIALTIES } from "@/lib/i18n"
 
 export default async function DoctorSignupPage() {
     const session = await auth()

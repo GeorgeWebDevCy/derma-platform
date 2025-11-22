@@ -29,6 +29,11 @@ export default async function DashboardLayout({
                         {t.dashboard.headerSignedIn(session.user?.email ?? "", session.user?.role ?? "")}
                     </span>
                     <LanguageSwitcher current={lang} />
+                    {session.user?.role === "admin" && (
+                        <Link href="/dashboard/admin" className="text-sm text-emerald-600 hover:underline">
+                            Admin
+                        </Link>
+                    )}
                     <form
                         action={async () => {
                             "use server"

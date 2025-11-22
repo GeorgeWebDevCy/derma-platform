@@ -5,11 +5,13 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { SPECIALTIES, LANGS, type Lang } from "@/lib/i18n"
 import { cookies } from "next/headers"
+import { CodedError, ERROR_MAP } from "@/lib/error-codes"
+import { logger } from "@/lib/logger"
 
 async function getSessionOrThrow() {
     const session = await auth()
     if (!session || !session.user?.id) {
-        throw new Error("Unauthorized")
+        throw new CodedError("AUTH_UNAUTHORIZED")
     }
     return session
 }
@@ -35,7 +37,7 @@ export async function requestConsultation(formData?: FormData) {
         include: { patientProfile: true },
     })
 
-    if (!user) throw new Error("User not found")
+    if (!user) throw new CodedError("USER_NOT_FOUND")
 
     if (!user.patientProfile) {
         await prisma.patientProfile.create({
@@ -70,16 +72,16 @@ export async function setLanguage(lang: Lang) {
 export async function acceptConsultation(formData: FormData) {
     const session = await getSessionOrThrow()
     const id = formData.get("consultationId")?.toString()
-    if (!id) throw new Error("Missing consultationId")
-    if (session.user.role !== "doctor") throw new Error("Only doctors can accept consultations")
+    if (!id) throw new CodedError("VALIDATION_FAILED", "Missing consultationId")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const [consultation, doctorProfile] = await Promise.all([
         prisma.consultation.findUnique({ where: { id } }),
         prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
     ])
-    if (!consultation) throw new Error("Consultation not found")
-    if (consultation.status !== "pending") throw new Error("Consultation already assigned")
-    if (!doctorProfile?.isAvailable) throw new Error("You must be online to accept consultations")
+    if (!consultation) throw new CodedError("CONSULTATION_NOT_FOUND")
+    if (consultation.status !== "pending") throw new CodedError("CONSULTATION_INVALID_STATUS")
+    if (!doctorProfile?.isAvailable) throw new CodedError("CONSULTATION_SPECIALTY_REQUIRED")
 
     await prisma.consultation.update({
         where: { id },
@@ -93,12 +95,12 @@ export async function acceptConsultation(formData: FormData) {
 export async function completeConsultation(formData: FormData) {
     const session = await getSessionOrThrow()
     const id = formData.get("consultationId")?.toString()
-    if (!id) throw new Error("Missing consultationId")
-    if (session.user.role !== "doctor") throw new Error("Only doctors can complete consultations")
+    if (!id) throw new CodedError("VALIDATION_FAILED", "Missing consultationId")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const consultation = await prisma.consultation.findUnique({ where: { id } })
-    if (!consultation) throw new Error("Consultation not found")
-    if (consultation.doctorId !== session.user.id) throw new Error("You are not assigned to this consultation")
+    if (!consultation) throw new CodedError("CONSULTATION_NOT_FOUND")
+    if (consultation.doctorId !== session.user.id) throw new CodedError("CONSULTATION_NOT_OWNED")
 
     await prisma.consultation.update({
         where: { id },
@@ -111,15 +113,15 @@ export async function completeConsultation(formData: FormData) {
 
 export async function releaseConsultation(formData: FormData) {
     const session = await getSessionOrThrow()
-    if (session.user.role !== "doctor") throw new Error("Only doctors can release consultations")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const id = formData.get("consultationId")?.toString()
-    if (!id) throw new Error("Missing consultationId")
+    if (!id) throw new CodedError("VALIDATION_FAILED", "Missing consultationId")
 
     const consultation = await prisma.consultation.findUnique({ where: { id } })
-    if (!consultation) throw new Error("Consultation not found")
-    if (consultation.doctorId !== session.user.id) throw new Error("You are not assigned to this consultation")
-    if (consultation.status !== "assigned") throw new Error("Only assigned consultations can be released")
+    if (!consultation) throw new CodedError("CONSULTATION_NOT_FOUND")
+    if (consultation.doctorId !== session.user.id) throw new CodedError("CONSULTATION_NOT_OWNED")
+    if (consultation.status !== "assigned") throw new CodedError("CONSULTATION_INVALID_STATUS")
 
     await prisma.consultation.update({
         where: { id },
@@ -132,7 +134,7 @@ export async function releaseConsultation(formData: FormData) {
 
 export async function upsertDoctorProfile(formData: FormData) {
     const session = await getSessionOrThrow()
-    if (session.user.role !== "doctor") throw new Error("Only doctors can update doctor profile")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const bio = formData.get("bio")?.toString().trim() || null
     const specialtyRaw = formData.get("specialty")?.toString().trim() || null
@@ -150,15 +152,15 @@ export async function upsertDoctorProfile(formData: FormData) {
 
 export async function updateConsultationNotes(formData: FormData) {
     const session = await getSessionOrThrow()
-    if (session.user.role !== "doctor") throw new Error("Only doctors can add notes")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const id = formData.get("consultationId")?.toString()
     const notes = formData.get("notes")?.toString().trim() || null
-    if (!id) throw new Error("Missing consultationId")
+    if (!id) throw new CodedError("VALIDATION_FAILED", "Missing consultationId")
 
     const consultation = await prisma.consultation.findUnique({ where: { id } })
-    if (!consultation) throw new Error("Consultation not found")
-    if (consultation.doctorId !== session.user.id) throw new Error("You are not assigned to this consultation")
+    if (!consultation) throw new CodedError("CONSULTATION_NOT_FOUND")
+    if (consultation.doctorId !== session.user.id) throw new CodedError("CONSULTATION_NOT_OWNED")
 
     await prisma.consultation.update({
         where: { id },
@@ -171,7 +173,7 @@ export async function updateConsultationNotes(formData: FormData) {
 
 export async function setDoctorAvailability(formData: FormData) {
     const session = await getSessionOrThrow()
-    if (session.user.role !== "doctor") throw new Error("Only doctors can set availability")
+    if (session.user.role !== "doctor") throw new CodedError("CONSULTATION_DOCTOR_REQUIRED")
 
     const status = formData.get("status")?.toString()
     const isAvailable = status === "online"
@@ -199,10 +201,10 @@ export async function cancelConsultation(formData: FormData) {
     if (session.user.role !== "patient") throw new Error("Only patients can cancel consultations")
 
     const id = formData.get("consultationId")?.toString()
-    if (!id) throw new Error("Missing consultationId")
+    if (!id) throw new CodedError("VALIDATION_FAILED", "Missing consultationId")
 
     const consultation = await prisma.consultation.findUnique({ where: { id } })
-    if (!consultation) throw new Error("Consultation not found")
+    if (!consultation) throw new CodedError("CONSULTATION_NOT_FOUND")
     if (consultation.patientId !== session.user.id) throw new Error("Not your consultation")
     if (consultation.status !== "pending") throw new Error("Only pending consultations can be cancelled")
 
