@@ -29,6 +29,8 @@ export default async function DoctorDashboard() {
         prisma.doctorProfile.findUnique({ where: { userId: session.user.id } }),
     ])
 
+    const incomingVisible = doctorProfile?.isAvailable ? incoming : []
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -52,11 +54,13 @@ export default async function DoctorDashboard() {
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50 p-6">
                     <h3 className="font-semibold leading-none tracking-tight">Incoming Requests</h3>
-                    {incoming.length === 0 ? (
-                        <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">No pending requests.</p>
+                    {incomingVisible.length === 0 ? (
+                        <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                            {doctorProfile?.isAvailable ? "No pending requests." : "Go online to view and accept pending requests."}
+                        </p>
                     ) : (
                         <div className="mt-4 space-y-4">
-                            {incoming.map((consultation) => (
+                            {incomingVisible.map((consultation) => (
                                 <ConsultationCardPending key={consultation.id} consultation={consultation} isAvailable={doctorProfile?.isAvailable ?? false} />
                             ))}
                         </div>

@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
-import { requestConsultation } from "@/app/actions"
+import { cancelConsultation, requestConsultation } from "@/app/actions"
 import { prisma } from "@/lib/prisma"
 
 export default async function PatientDashboard() {
@@ -81,7 +81,17 @@ export default async function PatientDashboard() {
                                 return (
                                 <div key={consultation.id} className="rounded-md border bg-gray-50 dark:bg-gray-900 p-3">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-200 px-2 py-1 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                                        <span
+                                            className={`text-xs font-semibold uppercase tracking-wide rounded-full px-2 py-1 ${
+                                                consultation.status === "pending"
+                                                    ? "bg-amber-200 text-amber-800 dark:bg-amber-900/40 dark:text-amber-100"
+                                                    : consultation.status === "assigned"
+                                                    ? "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-100"
+                                                    : consultation.status === "completed"
+                                                    ? "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                                                    : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                                            }`}
+                                        >
                                             {consultation.status}
                                         </span>
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -104,6 +114,14 @@ export default async function PatientDashboard() {
                                         <p className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-100">
                                             Doctor notes: {consultation.notes}
                                         </p>
+                                    )}
+                                    {consultation.status === "pending" && (
+                                        <form action={cancelConsultation} className="mt-3">
+                                            <input type="hidden" name="consultationId" value={consultation.id} />
+                                            <Button variant="outline" size="sm" className="w-full">
+                                                Cancel consultation
+                                            </Button>
+                                        </form>
                                     )}
                                     {images.length > 0 && (
                                         <div className="mt-2 grid grid-cols-2 gap-2">

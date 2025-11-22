@@ -150,3 +150,24 @@ export async function setDoctorAvailability(formData: FormData) {
     revalidatePath("/dashboard/doctor")
     revalidatePath("/dashboard/patient")
 }
+
+export async function cancelConsultation(formData: FormData) {
+    const session = await getSessionOrThrow()
+    if (session.user.role !== "patient") throw new Error("Only patients can cancel consultations")
+
+    const id = formData.get("consultationId")?.toString()
+    if (!id) throw new Error("Missing consultationId")
+
+    const consultation = await prisma.consultation.findUnique({ where: { id } })
+    if (!consultation) throw new Error("Consultation not found")
+    if (consultation.patientId !== session.user.id) throw new Error("Not your consultation")
+    if (consultation.status !== "pending") throw new Error("Only pending consultations can be cancelled")
+
+    await prisma.consultation.update({
+        where: { id },
+        data: { status: "cancelled" },
+    })
+
+    revalidatePath("/dashboard/patient")
+    revalidatePath("/dashboard/doctor")
+}
