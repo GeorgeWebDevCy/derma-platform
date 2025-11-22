@@ -1,1 +1,70 @@
-# derma-platform
+# DermaConnect - Global Dermatology Platform
+
+A scalable, high-performance platform connecting patients with dermatologists worldwide. Built with Next.js, MySQL, and Prisma.
+
+## 🚀 Tech Stack
+
+-   **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+-   **Database**: [MySQL](https://www.mysql.com/)
+-   **ORM**: [Prisma](https://www.prisma.io/)
+-   **Authentication**: [Auth.js](https://authjs.dev/) (Magic Links)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **UI Components**: [Radix UI](https://www.radix-ui.com/) / [Shadcn UI](https://ui.shadcn.com/)
+
+## 🛠️ Prerequisites
+
+-   **Node.js**: v18 or higher
+-   **MySQL**: A running MySQL instance (local or cloud)
+
+## 🏁 Getting Started
+
+### 1. Clone & Install
+```bash
+git clone <your-repo-url>
+cd derma-platform
+npm install
+```
+
+### 2. Configure Environment
+Copy the example environment file and update it with your credentials:
+```bash
+cp .env.example .env
+```
+Open `.env` and update `DATABASE_URL`:
+```env
+DATABASE_URL="mysql://user:password@localhost:3306/derma_platform"
+```
+> **Note**: Ensure your MySQL server is running and accessible. If using Docker, ensure the port is mapped correctly.
+
+### 3. Setup Database
+Generate the Prisma client and push the schema to your database:
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 4. Run the App
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📂 Project Structure
+
+-   `src/app`: Next.js App Router pages and layouts.
+-   `src/components`: Reusable UI components.
+-   `src/lib`: Utilities and library configurations (Prisma, Supabase, etc.).
+-   `prisma/schema.prisma`: Database schema definition.
+
+## 🔑 Authentication
+
+The app uses **Magic Links** for authentication.
+-   **Development**: Emails are logged to the console (if using a mock provider) or sent via Resend if configured.
+-   **Roles**: Users are `patient` by default. You can manually update a user to `doctor` in the database to access the Doctor Dashboard.
+
+## 🚑 Troubleshooting
+
+**Error: P1001: Can't reach database server**
+-   Check if MySQL is running.
+-   Verify the `DATABASE_URL` in `.env` is correct.
+-   If using a cloud provider (PlanetScale, AWS), ensure your IP is whitelisted.
