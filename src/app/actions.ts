@@ -80,3 +80,20 @@ export async function completeConsultation(formData: FormData) {
     revalidatePath("/dashboard/doctor")
     revalidatePath("/dashboard/patient")
 }
+
+export async function upsertDoctorProfile(formData: FormData) {
+    const session = await getSessionOrThrow()
+    if (session.user.role !== "doctor") throw new Error("Only doctors can update doctor profile")
+
+    const bio = formData.get("bio")?.toString().trim() || null
+    const specialty = formData.get("specialty")?.toString().trim() || null
+
+    await prisma.doctorProfile.upsert({
+        where: { userId: session.user.id },
+        update: { bio, specialty },
+        create: { userId: session.user.id, bio, specialty },
+    })
+
+    revalidatePath("/dashboard/doctor")
+    revalidatePath("/auth/doctor/signup")
+}
